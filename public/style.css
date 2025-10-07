@@ -1,0 +1,457 @@
+@import url("https://fonts.googleapis.com/css?family=Josefin+Sans|Mountains+of+Christmas&display=swap");
+
+* {
+    font-family: "Josefin Sans", sans-serif;
+}
+
+#projek {
+    background-color: #671ad4b0;
+}
+
+.section {
+    padding-top: 5rem;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(0, 130, 244);
+}
+
+/* Smooth scroll behavior */
+:root {
+    scroll-behavior: smooth;
+}
+
+/* hover */
+a:hover {
+    color: #ffc732;
+    text-decoration: none;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* hover icon */
+.box {
+    /* border: 5px solid lightgray; */
+    transition: all 1s;
+    display: inline-block;
+}
+
+.box:hover {
+    border-color: #ffc732;
+    box-shadow: 0 6px 8px #000;
+    margin-top: 10px;
+}
+
+@media all and (min-width: 992px) {
+    .navbar .nav-item .dropdown-menu {
+        display: none;
+    }
+    .navbar .nav-item:hover .dropdown-menu {
+        display: block;
+    }
+    .navbar .nav-item .dropdown-menu {
+        margin-top: 0;
+    }
+}
+
+/*--------------------------------------------------------------
+# Breadcrumbs
+--------------------------------------------------------------*/
+.breadcrumbs {
+    padding: 140px 0 60px 0;
+    min-height: 30vh;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.breadcrumbs:before {
+    content: "";
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    inset: 0;
+}
+
+.breadcrumbs h2 {
+    font-size: 56px;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-secondary);
+}
+
+.breadcrumbs h3 {
+    font-size: 40px;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-secondary);
+}
+
+.breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0 0 10px 0;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffc732;
+}
+
+.breadcrumbs ol a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: 0.3s;
+}
+
+.breadcrumbs ol a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs ol li + li {
+    padding-left: 10px;
+}
+
+.breadcrumbs ol li + li::before {
+    display: inline-block;
+    padding-right: 10px;
+    color: #fff;
+    content: "/";
+}
+
+/* @media (max-width: 1000px) {
+    .my-div {
+        display: none;
+    }
+} */
+
+.menu {
+    display: block;
+}
+
+.menu-mobile {
+    display: none;
+    background-color: #eee;
+    color: #333;
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 70%;
+}
+
+.menu-jaringan {
+    background-color: rgb(64, 0, 255);
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    font-weight: bold;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    height: 50%;
+}
+
+.menu-jaringan option {
+    color: blue;
+    background-color: rgb(228, 228, 228);
+    padding: 100px;
+    border-bottom: 10px solid #ddd;
+    margin: 100px;
+}
+
+@media (max-width: 1000px) {
+    .menu {
+        display: none;
+    }
+    .menu-mobile {
+        display: block;
+    }
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    list-style-type: none;
+}
+
+.active {
+    color: #ffc732;
+}
+
+.limenu {
+    color: #ffc732;
+}
+
+iframe {
+    width: 100%;
+    height: 70%;
+    max-width: 800px;
+    max-height: 600px;
+}
+
+/* Scroll atas */
+#scroll-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 99;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background-color: red;
+    color: white;
+    cursor: pointer;
+    padding: 15px 19px;
+    border-radius: 100px;
+}
+
+#scroll-btn:hover {
+    background-color: #555;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* Hover img */
+.wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.zoom-effect {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.kotak {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.kotak img {
+    -webkit-transition: 0.4s ease;
+    transition: 0.4s ease;
+    max-width: 700px;
+}
+
+.zoom-effect:hover .kotak img {
+    -webkit-transform: scale(1.08);
+    transform: scale(1.08);
+}
+
+/* Tabel */
+.underline td {
+    border-bottom: 1px solid black;
+    padding: 5px;
+    vertical-align: top;
+}
+
+.no-underline td {
+    padding: 5px;
+    vertical-align: top;
+}
+
+/*--------------------------------------------------------------
+# GAleri Section
+--------------------------------------------------------------*/
+.projects .portfolio-flters {
+    padding: 0;
+    margin: 0 auto 20px auto;
+    list-style: none;
+    text-align: center;
+}
+
+.projects .portfolio-flters li {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 10px;
+    line-height: 1;
+    margin-bottom: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+.projects .portfolio-flters li:hover,
+.projects .portfolio-flters li.filter-active {
+    color: var(--color-primary);
+}
+
+.projects .portfolio-flters li:first-child {
+    margin-left: 0;
+}
+
+.projects .portfolio-flters li:last-child {
+    margin-right: 0;
+}
+
+@media (max-width: 575px) {
+    .projects .portfolio-flters li {
+        font-size: 14px;
+        margin: 0 5px;
+    }
+}
+
+.projects .portfolio-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.projects .portfolio-content img {
+    transition: 0.3s;
+}
+
+.projects .portfolio-content .portfolio-info {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    transition: all ease-in-out 0.3s;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+}
+
+.projects .portfolio-content .portfolio-info h4 {
+    font-size: 14px;
+    padding: 5px 10px;
+    font-weight: 400;
+    color: #fff;
+    display: inline-block;
+    background-color: var(--color-primary);
+}
+
+.projects .portfolio-content .portfolio-info p {
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    display: inline-block;
+    left: 0;
+    right: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.projects .portfolio-content .portfolio-info .preview-link,
+.projects .portfolio-content .portfolio-info .details-link {
+    position: absolute;
+    left: calc(50% - 40px);
+    font-size: 26px;
+    top: calc(50% - 14px);
+    color: #fff;
+    transition: 0.3s;
+    line-height: 1.2;
+}
+
+.projects .portfolio-content .portfolio-info .preview-link:hover,
+.projects .portfolio-content .portfolio-info .details-link:hover {
+    color: yellowgreen;
+}
+
+.projects .portfolio-content .portfolio-info .details-link {
+    left: 50%;
+    font-size: 34px;
+    line-height: 0;
+}
+
+.projects .portfolio-content:hover .portfolio-info {
+    opacity: 1;
+}
+
+.projects .portfolio-content:hover img {
+    transform: scale(1.1);
+}
+
+/*--------------------------------------------------------------
+# Team Section
+--------------------------------------------------------------*/
+.team .team-member {
+    overflow: hidden;
+    background: #fff;
+}
+
+.team .team-member .member-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.team .team-member .social {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 40px;
+    opacity: 0;
+    transition: ease-in-out 0.3s;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.team .team-member .social a {
+    transition: color 0.3s;
+    color: #31547c;
+    margin: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.team .team-member .social a i {
+    line-height: 0;
+}
+
+.team .team-member .social a:hover {
+    color: var(--color-primary);
+}
+
+.team .team-member .social i {
+    font-size: 18px;
+    margin: 0 2px;
+}
+
+.team .team-member .member-info {
+    padding: 25px 15px 0 15px;
+    text-align: center;
+}
+
+.team .team-member .member-info h4 {
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 18px;
+    color: var(--color-secondary);
+}
+
+.team .team-member .member-info span {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.team .team-member .member-info p {
+    font-style: italic;
+    font-size: 14px;
+    line-height: 26px;
+    color: #6c757d;
+}
+
+.team .team-member:hover .social {
+    opacity: 1;
+}

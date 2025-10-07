@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css?family=Josefin+Sans|Mountains+of+Christmas&display=swap");
+
+* {
+    font-family: "Josefin Sans", sans-serif;
+}
+
+#projek {
+    background-color: #671ad4b0;
+}
+
+.section {
+    padding-top: 5rem;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(0, 130, 244);
+}
+
+/* Smooth scroll behavior */
+:root {
+    scroll-behavior: smooth;
+}
+
+/* hover */
+a:hover {
+    color: #ffc732;
+    text-decoration: none;
+}
+
+/* hover icon */
+.box {
+    /* border: 5px solid lightgray; */
+    transition: all 1s;
+    display: inline-block;
+}
+
+.box:hover {
+    border-color: #ffc732;
+    box-shadow: 0 6px 8px #000;
+    margin-top: 10px;
+}
+
+/*--------------------------------------------------------------
+# Breadcrumbs
+--------------------------------------------------------------*/
+.breadcrumbs {
+    padding: 140px 0 60px 0;
+    min-height: 30vh;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.breadcrumbs:before {
+    content: "";
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    inset: 0;
+}
+
+.breadcrumbs h2 {
+    font-size: 56px;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-secondary);
+}
+
+.breadcrumbs h3 {
+    font-size: 40px;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-secondary);
+}
+
+.breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0 0 10px 0;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffc732;
+}
+
+.breadcrumbs ol a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: 0.3s;
+}
+
+.breadcrumbs ol a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs ol li + li {
+    padding-left: 10px;
+}
+
+.breadcrumbs ol li + li::before {
+    display: inline-block;
+    padding-right: 10px;
+    color: #fff;
+    content: "/";
+}
+
+/* @media (max-width: 1000px) {
+    .my-div {
+        display: none;
+    }
+} */
