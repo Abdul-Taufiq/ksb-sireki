@@ -9,26 +9,22 @@ class LoginController extends Controller
 {
     public function index()
     {
-    	return view('login.login' ,[
-            "tittle" => "Login"
-      ]);
+        return view('login.login', [
+            "title" => "Login"
+        ]);
     }
 
     public function postlogin(Request $request)
     {
-    	// return ($request->all());
-    	$credentials = $request ->validate([
+        // return ($request->all());
+        $credentials = $request->validate([]);
 
-    	]);
-
-    	if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
- 
+
             return redirect()->intended('/home');
         }
- 
-        return back()->with('loginError', 'Username & Password Anda Salah!');
-    
-    }
 
+        return back()->with('loginError', 'Username & Password Anda Salah!');
+    }
 }

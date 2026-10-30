@@ -1,61 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>KSB | {{ $tittle }}</title>
+    <title>KSB | {{ $title }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free/css/all.min.css') }}">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet"
-        href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
-    <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/daterangepicker/daterangepicker.css') }}">
-    <!-- summernote -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/summernote/summernote-bs4.min.css') }}">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('template/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
 
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
+    {{-- THEME INIT --}}
+    <script>
+        (() => {
+            'use strict';
 
-    {{-- <link rel="stylesheet" href="{{ asset('style.css')}}"> --}}
-    {{-- <link rel="stylesheet" href="{{ asset('template/style.css')}}"> --}}
+            const STORAGE_KEY = 'lte-theme';
+            let stored = null;
 
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}">
+            try {
+                stored = localStorage.getItem(STORAGE_KEY);
+            } catch {
+                // localStorage mungkin tidak tersedia
+            }
 
-    {{-- Trix Editor --}}
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.0/dist/trix.css">
-    <script type="text/javascript" src="https://unpkg.com/trix@2.0.0/dist/trix.umd.min.js"></script>
+            const prefersDark =
+                globalThis.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    {{-- logo --}}
-    <link rel="shortcut icon" href="{{ asset('img/icon_logo.png') }}">
-    <link rel="icon" href="{{ asset('img/icon_logo.png') }}">
+            let resolved = 'light';
 
-    {{-- style for trix editor --}}
+            if (stored === 'dark' || stored === 'light') {
+                resolved = stored;
+            } else if (prefersDark) {
+                resolved = 'dark';
+            }
+
+            document.documentElement.setAttribute(
+                'data-bs-theme',
+                resolved
+            );
+
+            document.documentElement.style.colorScheme = resolved;
+        })();
+    </script>
+
+    {{-- META --}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
+    <meta name="supported-color-schemes" content="light dark" />
+
+    {{-- PRELOAD CSS --}}
+    <link rel="preload" href="{{ asset('template/css/adminlte.min.css') }}" as="style" />
+
+    {{-- FONT --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
+        integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print"
+        onload="this.media = 'all'" />
+
+    {{-- OVERLAY SCROLLBARS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+        crossorigin="anonymous" />
+
+
+    {{-- BOOTSTRAP ICONS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        crossorigin="anonymous" />
+
+    {{-- SUMMERNOTE CSS --}}
+    <link rel="stylesheet" href="{{ asset('template/summernote/summernote-bs5.min.css') }}" />
+
+    {{-- FAVICON --}}
+    <link rel="shortcut icon" href="{{ asset('img/logo-ksb.png') }}" />
+    <link rel="icon" href="{{ asset('img/logo-ksb.png') }}" />
+
+    {{-- CORE CSS --}}
+    <link rel="stylesheet" href="{{ asset('template/css/adminlte.min.css') }}" />
+
+    {{--  CUSTOM CSS --}}
+    @stack('wire-style')
+    @yield('style')
     <style>
-        trix-toolbar [data-trix-button-group="file-tools"] {
-            display: none;
+        .active {
+            background-color: rgba(0, 140, 255, 0.145) !important;
+        }
+
+        .btn-table {
+            width: 30px !important;
+            height: 30px !important;
+            padding: 3px 0 0 0 !important;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        label:has(+ input[required])::after {
+            content: "  *";
+            color: red;
+            font-style: italic;
+        }
+
+        label:has(+ select[required])::after {
+            content: "  *";
+            color: red;
+            font-style: italic;
+        }
+
+        label:has(+ textarea[required])::after {
+            content: " *";
+            color: red;
+        }
+
+        .wajib::after {
+            content: " *";
+            color: red;
+        }
+
+        input {
+            border-radius: 8px !important;
+        }
+
+        textarea {
+            border-radius: 8px !important;
+        }
+
+        select {
+            border-radius: 8px !important;
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.357);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
         }
     </style>
-
 
 </head>

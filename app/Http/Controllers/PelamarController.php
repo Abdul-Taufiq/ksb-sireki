@@ -4,166 +4,173 @@ namespace App\Http\Controllers;
 
 use App\Models\Pelamar;
 use App\Models\Loker;
+use App\Models\Quiz\Jadwal;
+use App\Models\Quiz\JadwalXPelamar;
+use App\Models\Quiz\PaketSoal;
+use App\Models\TrackingLamaran;
+use App\Services\PelamarServices;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Laravel\Ui\Presets\React;
+use Illuminate\Support\Str;
 
 class PelamarController extends Controller
 {
+    protected $pelamarServices;
+    public function __construct(PelamarServices $pelamarServices)
+    {
+        $this->pelamarServices = $pelamarServices;
+    }
+
+
+    // =========================
+    // PUBLIC
     public function dashboard()
     {
         $currentDate = Carbon::now();
-        DB::table('tb_loker')
-            ->where('tgl_berakhir', '<', $currentDate)
+        Loker::where('tgl_berakhir', '<', $currentDate)
             ->update(['status' => 'Non-active']);
 
-        $loker = Loker::where('status', 'Active')->paginate(6);
-        if (!$loker->isEmpty()) {
-            return view('notloged.dashboard', compact('loker'), [
-                "tittle" => "Dashboard"
+        $loker = Loker::where('status', 'Active')->paginate(9);
+        return view('notloged.dashboard', compact('loker'), [
+            "title" => "Dashboard"
+        ]);
+    }
+
+
+    public function dashboardShow($id)
+    {
+        $ids = base64_decode($id);
+        $loker = Loker::findOrFail($ids);
+        return view('notloged.detail-loker', compact('loker'), [
+            "title" => "Detail Lowongan"
+        ]);
+    }
+
+
+    public function showData($id)
+    {
+        $ids = Crypt::decrypt($id);
+        $pelamar = Pelamar::findOrFail($ids);
+        return view('notloged.show-pelamar', compact('pelamar'), [
+            "title" => "Detail Kandidat & Lamaran Pekerjaan"
+        ]);
+    }
+
+
+    public function getDataPelamar(Request $request)
+    {
+        $kodeLamaran = $request->input('kode');
+        $password = $request->input('pass');
+
+        $date  = Carbon::createFromFormat('dmY', $password)->format('Y-m-d');
+
+
+        // Cari pelamar berdasarkan kode lamaran dan password
+        $pelamar = Pelamar::where('kode_pelamar', $kodeLamaran)
+            ->where('tgl_lahir', $date)
+            ->first();
+
+        if ($pelamar) {
+            // Jika pelamar ditemukan, kembalikan data pelamar
+            return response()->json([
+                'success' => true,
+                'data' =>  Crypt::encrypt($pelamar->id_pelamar)
             ]);
         } else {
-            return view('notloged.dashboard-disloker', compact('loker'), [
-                "tittle" => "Dashboard"
+            // Jika pelamar tidak ditemukan, kembalikan pesan error
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelamar tidak ditemukan.'
             ]);
-        };
-    }
-
-    public function index()
-    {
-        $data = Pelamar::orderBy('created_at', 'DESC')->get();
-        return view('pelamar.pelamar', compact('data'), [
-            "tittle" => "Pelamar"
-        ]);
+        }
     }
 
 
-    public function updateStatus(Request $request)
-    {
-        $ids = base64_decode($request->id_pelamar);
-        $pelamar = Pelamar::find($ids);
-        $pelamar->update([
-            'status' => $request->status,
-            'catatan' => $request->catatan,
-            'nama_status' => Auth::user()->nama,
-            'tgl_status' => now()
-        ]);
 
-        return redirect()->back()->with('status', 'Status Pelamar Berhasil Diupdate!');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function create($id)
     {
-        $loker = Loker::where('status', 'Active')->get();
-        $now = Carbon::now();
+        $ids = base64_decode($id);
+        $loker = Loker::findOrFail($ids);
+
         return view('notloged.add-pelamar', compact('loker'), [
-            "tittle" => "Daftar Karir"
+            "title" => "Apply Loker KSB",
+            'loker' => $loker
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        $request->validate([
-            'berkas_pendukung' => 'required|mimes:pdf|max:10240',
-            'no_telp' => 'numeric|min:0000011111|max:999999999999999',
-            'no_wa' => 'numeric|min:0000011111|max:999999999999999',
-        ], [
-            // PESAN ERROR
-            'berkas_pendukung.mimes' => 'File Harus Berformat PDF!',
-            'berkas_pendukung.max' => 'File Terlalu Besar! Maximal 10 MB',
-            'no_telp.numeric' => 'Nomor Hp Harus Angka',
-            'no_telp.min' => 'Nomor Hp Harus Minimal 10 Angka',
-            'no_telp.max' => 'Nomor Hp Harus Maximal 14 Angka',
+        $pelamar = $this->pelamarServices->store($request);
+
+        return redirect()->route('pelamar-show', encrypt($pelamar->id_pelamar))->with('AlertSuccess', 'DATA LAMARAN BERHASIL DIKIRIM!');
+    }
+
+
+    // ============================
+    // ADMIN
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->pelamarServices->index($request);
+        }
+
+        $paket = PaketSoal::orderBy('created_at', 'desc')->get();
+
+        return view('page.pelamar.index', [
+            "title" => "Data Pelamar",
+            'paket' => $paket
         ]);
+    }
 
 
-        // berkas_pendukung
-        //mengambil data file yang diupload
-        $berkas_pendukung = $request->file('berkas_pendukung');
-        //mengambil nama file
-        $fileNameberkas_pendukung = $berkas_pendukung->getClientOriginalName();
-        //memindahkan file ke folder tujuan
-        $berkas_pendukung->move('file_upload/pdf', $fileNameberkas_pendukung);
-        // $pdf->storeAs('file_upload',$pdf->getClientOriginalName());
+    public function show($id)
+    {
+        $ids = base64_decode($id);
+        $pelamar = Pelamar::with('tracking')->findOrFail($ids);
 
-        $pelamar = new Pelamar;
-        $pelamar->nama = $request->nama;
-        $pelamar->tempat_lahir = $request->tempat_lahir;
-        $pelamar->tgl_lahir = Carbon::createFromFormat('d-m-Y', $request->tgl_lahir)->format('Y-m-d');
-        $pelamar->alamat = $request->alamat;
-        $pelamar->domisili = $request->domisili;
-        $pelamar->jns_kelamin = $request->jns_kelamin;
-        $pelamar->email = $request->email;
-        $pelamar->no_telp = $request->no_telp;
-        $pelamar->no_wa = $request->no_wa;
-        $pelamar->posisi = $request->posisi;
-        $pelamar->pendidikan = $request->pendidikan;
-        $pelamar->jurusan = $request->jurusan;
-        $pelamar->berkas_pendukung = $fileNameberkas_pendukung;
+        return view('page.pelamar.show', compact('pelamar'), [
+            "title" => "Detail Kandidat & Lamaran Pekerjaan"
+        ]);
+    }
 
-        $pelamar->created_at = now();
-        // dd($pelamar);
+
+    public function update($id, Request $request)
+    {
+        $pelamar = Pelamar::findOrFail(base64_decode($id));
+        $pelamar->kode_pelamar = $request->kode_pelamar;
         $pelamar->save();
 
-        return redirect('calon/create')->with('status', 'DATA ANDA BERHASIL DIKIRIMKAN!');
+        return redirect()->back();
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Pelamar  $pelamar
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Pelamar $pelamar)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Pelamar  $pelamar
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Pelamar $pelamar)
+    public function destroy($id)
     {
-        //
-    }
+        $pelamar = Pelamar::findOrFail(base64_decode($id));
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Pelamar  $pelamar
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Pelamar $pelamar)
-    {
-        //
-    }
+        // hapus file gambar lama
+        if ($pelamar->berkas_pendukung) {
+            $path = public_path('file_upload/pdf/' . $pelamar->berkas_pendukung);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Pelamar  $pelamar
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Pelamar $pelamar)
-    {
         $pelamar->delete();
-        return redirect('pelamar')->with('status', 'DATA PELAMAR BERHASIL DIHAPUS!');
+        // return redirect('pelamar')->with('status', 'DATA PELAMAR BERHASIL DIHAPUS!');
+        return response()->json(['success' => true]);
+    }
+
+
+    // Update status pelamar
+    public function changeStatus(Request $request)
+    {
+        $this->pelamarServices->changeStatus($request);
+        return redirect()->back()->with('AlertSuccess', 'Status Pelamar Berhasil Diupdate!');
     }
 }

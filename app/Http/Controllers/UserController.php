@@ -12,21 +12,23 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth','verified']);
+        $this->middleware(['auth', 'verified']);
     }
 
     public function index()
     {
-    	$data = User::all();
+        $data = User::all();
         // dd($data);
-        return view ('user.user', compact('data'), [
-            "tittle" => "Data User"
-        ],
-        [
-            'data'=>$data
-        ]);
-
-        
+        return view(
+            'user.user',
+            compact('data'),
+            [
+                "title" => "Data User"
+            ],
+            [
+                'data' => $data
+            ]
+        );
     }
 
 
@@ -34,32 +36,35 @@ class UserController extends Controller
     {
         $now = Carbon::now();
         return view('debitur.add-debitur', [
-            "tittle" => "Tambah Data User"
+            "title" => "Tambah Data User"
         ]);
-
     }
 
 
     public function edit(User $user)
     {
         $data = User::all();
-        return view ('user.update-user', compact('user', 'data'), [
-            "tittle" => "Edit User"
-        ],
-        [
-            'data' => $data
-        ]);
+        return view(
+            'user.update-user',
+            compact('user', 'data'),
+            [
+                "title" => "Edit User"
+            ],
+            [
+                'data' => $data
+            ]
+        );
     }
 
     public function update(Request $request, $id)
     {
         // FORM VALIDASI
-       $request->validate([
+        $request->validate([
             'nama' => ['required', 'string', 'max:255', 'min:2'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,id'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-           // PESAN ERROR
+            // PESAN ERROR
             'nama.min' => 'Nama Minimal 2 Karakter!',
             'nama.max' => 'Nama Maksimal 255 Karakter!',
             'email.email' => 'Email Yang Anda Masukan Tidak Valid!',
@@ -69,16 +74,16 @@ class UserController extends Controller
         ]);
 
         DB::table('users')->where('id', $id)
-        ->update([
-            'nama' => $request['nama'],
-            'email' => $request['email'],
-            'level' => $request['level'],
-            // menggunakan enkripsi jenis BCrypt
-            'password' => Hash::make($request['password']),
-            'updated_at' => now(),
-            // menggunakan md5
-            // 'password' => md5($data['password']),
-        ]);
+            ->update([
+                'nama' => $request['nama'],
+                'email' => $request['email'],
+                'level' => $request['level'],
+                // menggunakan enkripsi jenis BCrypt
+                'password' => Hash::make($request['password']),
+                'updated_at' => now(),
+                // menggunakan md5
+                // 'password' => md5($data['password']),
+            ]);
 
 
         return redirect('user')->with('status', 'DATA USER BERHASIL DIUBAH!');
@@ -90,6 +95,4 @@ class UserController extends Controller
         DB::table('users')->where('id', $id)->delete();
         return redirect('user')->with('status', 'DATA USER BERHASIL DIHAPUS!');
     }
-
-
 }

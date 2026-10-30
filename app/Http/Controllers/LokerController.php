@@ -2,160 +2,107 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cabang;
 use App\Models\Loker;
+use App\Services\LokerServices;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class LokerController extends Controller
 {
-    public function index()
+    protected $lokerServices;
+
+    public function __construct(LokerServices $lokerServices)
     {
-        $data = Loker::all();
-        return view('loker.loker', compact('data'), [
-            "tittle" => "Data Loker"
+        $this->lokerServices = $lokerServices;
+
+        // Middleware hanya untuk method create
+        // $this->middleware('ceklevel:SUPER USER,DIREKTUR')->only('create');
+
+        // Kalau mau untuk beberapa method sekaligus
+        $this->middleware('ceklevel:SUPER USER,DIREKTUR')->only(['create', 'store', 'edit', 'update', 'destroy']);
+    }
+
+
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            return $this->lokerServices->index($request);
+        }
+
+        return view('page.loker.index', [
+            "title" => "Data Lowongan Kerjaan"
         ]);
     }
 
 
     public function create()
     {
-        $now = Carbon::now();
-        return view('loker.add-loker', [
-            "tittle" => "Tambah Data Job Baru"
+        $cbg = Cabang::orderBy('id_cabang', 'ASC')->get();
+        return view('page.loker.create-edit-loker', [
+            "title" => "Tambah Data",
+            'tipe' => "create",
+            'loker' => null,
+            'cabang' => $cbg
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function store(Request $request)
     {
-        $request->validate([
-            'gambar' => 'required|image|max:5024',
-        ], [
-            // PESAN ERROR
-            'gambar.image' => 'File Harus Berformat Gambar!',
-            'gambar.max' => 'File Terlalu Besar! Maximal 5 MB',
+        $this->lokerServices->store($request);
+        return redirect(route('loker.index'))->with('AlertSuccess', 'DATA LOKER BERHASIL DITAMBAH!');
+    }
+
+
+
+    public function show($id)
+    {
+        $loker = Loker::findorfail($id);
+        return view('page.loker.show', compact('loker'), [
+            'title' => 'Show Data Loker'
         ]);
+    }
 
 
-        //mengambil data file yang diupload
-        $gambar = $request->file('gambar');
-        //mengambil nama file
-        $fileName = $gambar->getClientOriginalName();
-        //memindahkan file ke folder tujuan
-        $gambar->move('file_upload/img', $fileName);
-        // $gambar->storeAs('file_upload',$gambar->getClientOriginalName());
 
-        $loker = new Loker;
-        $loker->posisi = $request->posisi;
-        $loker->kualifikasi = $request->kualifikasi;
-        $loker->tgl_berakhir = Carbon::createFromFormat('d-m-Y', $request->tgl_berakhir)->format('Y-m-d');
-        $loker->gambar = $fileName;
+    public function edit($id)
+    {
+        $loker = Loker::findOrFail(base64_decode($id));
+        $cbg = Cabang::orderBy('id_cabang', 'ASC')->get();
+        return view('page.loker.create-edit-loker', [
+            "title" => "Update Loker",
+            'tipe' => 'edit',
+            'loker' => $loker,
+            'cabang' => $cbg
+        ]);
+    }
 
-        // Membuat active non-active
-        $active = "Active";
-        $nonacive = "Non-active";
-        if (Carbon::createFromFormat('d-m-Y', $request->tgl_berakhir)->format('Y-m-d') > now()) {
-            $loker->status = $active;
-        } else {
-            $loker->status = $nonacive;
+
+
+    public function update(Request $request, $id)
+    {
+        $this->lokerServices->update($request, $id);
+        return redirect('loker')->with('AlertSuccess', 'DATA LOKER BERHASIL DIUBAH!');
+    }
+
+
+    public function destroy($id)
+    {
+        $loker = Loker::findOrFail(base64_decode($id));
+
+        // hapus file gambar lama
+        if ($loker->gambar) {
+            $path = public_path('file_upload/img/' . $loker->gambar);
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
 
-        $loker->created_at = now();
-        // dd($loker);
-        $loker->save();
-
-        return redirect('loker')->with('status', 'DATA LOKER BERHASIL DITAMBAH!');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Loker  $loker
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Loker $loker)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Loker  $loker
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Loker $loker)
-    {
-
-        return view('loker.update-loker', compact('loker'), [
-            "tittle" => "Update Loker"
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Loker  $loker
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Loker $loker)
-    {
-        $request->validate([
-            'gambar' => 'required|image|max:5024',
-        ], [
-            // PESAN ERROR
-            'gambar.image' => 'File Harus Berformat Gambar!',
-            'gambar.max' => 'File Terlalu Besar! Maximal 5 MB',
-        ]);
-
-        //mengambil data file yang diupload
-        $gambar = $request->file('gambar');
-        //mengambil nama file
-        $fileName = $gambar->getClientOriginalName();
-        //memindahkan file ke folder tujuan
-        $gambar->move('file_upload/img', $fileName);
-        // $gambar->storeAs('file_upload',$gambar->getClientOriginalName());
-
-        $loker->posisi = $request->posisi;
-        $loker->kualifikasi = $request->kualifikasi;
-        $loker->tgl_berakhir = Carbon::createFromFormat('d-m-Y', $request->tgl_berakhir)->format('Y-m-d');
-        $loker->gambar = $fileName;
-
-
-        // Membuat active non-active
-        $active = "Active";
-        $nonacive = "Non-active";
-        if (Carbon::createFromFormat('d-m-Y', $request->tgl_berakhir)->format('Y-m-d') > now()) {
-            $loker->status = $active;
-        } else {
-            $loker->status = $nonacive;
-        }
-
-
-
-        $loker->updated_at = now();
-        // dd($loker);
-        $loker->save();
-
-        return redirect('loker')->with('status', 'DATA LOKER BERHASIL DIUBAH!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Loker  $loker
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Loker $loker)
-    {
         $loker->delete();
-        return redirect('loker')->with('status', 'DATA LOKER BERHASIL DIHAPUS!');
+        return response()->json(['success' => true]);
+        // return redirect('loker')->with('AlertSuccess', 'DATA LOKER BERHASIL DIHAPUS!');
     }
 }

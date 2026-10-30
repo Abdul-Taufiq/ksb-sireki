@@ -36,27 +36,36 @@ trait AuthenticatesUsers
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
-        if (method_exists($this, 'hasTooManyLoginAttempts') &&
-            $this->hasTooManyLoginAttempts($request)) {
+        if (
+            method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)
+        ) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
         }
 
-        if ($this->attemptLogin($request)) {
-            if ($request->hasSession()) {
-                $request->session()->put('auth.password_confirmed_at', time());
-            }
+        //Wajib
+        $cekUser = User::where('email', $request->email)->first();
+        if ($cekUser != null) {
+            if ($cekUser->ksb_karir == 'Ya' && $cekUser->status == 'Aktif') {
+                if ($this->attemptLogin($request)) {
+                    if ($request->hasSession()) {
+                        $request->session()->put('auth.password_confirmed_at', time());
+                    }
 
-            return $this->sendLoginResponse($request);
+                    return $this->sendLoginResponse($request);
+                }
+                $this->incrementLoginAttempts($request);
+            } else {
+                return back()->with('loginError', 'User yang anda masukan tidak terdaftar untuk membuka aplikasi ini!');
+            }
+        } else {
+            return back()->with('loginError', 'User yang anda masukan salah!');
         }
 
-        // If the login attempt was unsuccessful we will increment the number of attempts
-        // to login and redirect the user back to the login form. Of course, when this
-        // user surpasses their maximum number of attempts they will get locked out.
-        $this->incrementLoginAttempts($request);
-
-        return $this->sendFailedLoginResponse($request);
+        // return $this->sendFailedLoginResponse($request);
+        return back()->with('loginError', 'User yang anda masukan tidak terdaftar untuk membuka aplikasi ini!');
     }
 
     /**
@@ -88,7 +97,8 @@ trait AuthenticatesUsers
     protected function attemptLogin(Request $request)
     {
         return $this->guard()->attempt(
-            $this->credentials($request), $request->boolean('remember')
+            $this->credentials($request),
+            $request->boolean('remember')
         );
     }
 
@@ -120,8 +130,8 @@ trait AuthenticatesUsers
         }
 
         return $request->wantsJson()
-                    ? new JsonResponse([], 204)
-                    : redirect()->intended($this->redirectPath());
+            ? new JsonResponse([], 204)
+            : redirect()->intended($this->redirectPath());
     }
 
     /**
@@ -147,10 +157,10 @@ trait AuthenticatesUsers
     protected function sendFailedLoginResponse(Request $request)
     {
         return redirect()->back()
-        ->withInput($request->only($this->username(), 'remember'))
-        ->withErrors([
-            $this->username() => Lang::get('auth.failed'),
-        ]);
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+                $this->username() => Lang::get('auth.failed'),
+            ]);
     }
 
     /**

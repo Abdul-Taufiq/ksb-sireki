@@ -32,15 +32,15 @@ class HomeController extends Controller
         PermissionTokens::where('id', '1')->update([
             'updated_at' => now()
         ]);
-        
-        
+
+
         $User = User::all();
         $pelamar = Pelamar::all();
         $lokerActive = Loker::all()->where('status', '=', 'Active');
         $lokerNonactive = Loker::all()->where('status', '=', 'Non-active');
-        $penjadwalan = Penjadwalan::all();
-        return view('home', compact('User', 'pelamar', 'penjadwalan', 'lokerActive', 'lokerNonactive'),[
-            "tittle" => "Dashboard"
+
+        return view('home', compact('User', 'pelamar', 'lokerActive', 'lokerNonactive'), [
+            "title" => "Dashboard"
         ]);
     }
 }

@@ -18,12 +18,12 @@ trait RegistersUsers
      */
     public function showRegistrationForm()
     {
-    //     return view('auth.register',[
-    //         "tittle" => "Not Allowed"
-    //   ]);
-      return view('register.index', [
-        "tittle" => "Registrasi"
-    ]);
+        //     return view('auth.register',[
+        //         "title" => "Not Allowed"
+        //   ]);
+        return view('register.index', [
+            "title" => "Registrasi"
+        ]);
     }
 
     /**
@@ -45,8 +45,8 @@ trait RegistersUsers
         }
 
         return $request->wantsJson()
-                    ? new JsonResponse([], 201)
-                    : redirect($this->redirectPath());
+            ? new JsonResponse([], 201)
+            : redirect($this->redirectPath());
     }
 
     /**

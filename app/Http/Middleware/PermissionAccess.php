@@ -5,30 +5,28 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\PermissionTokens;
+use Carbon\Carbon;
 
 class PermissionAccess
 {
 
     public function handle(Request $request, Closure $next, ...$levels)
     {
-        // $endDate = Carbon::parse('2023-10-03'); //yyy-mm-dd
-        // $now = Carbon::now();
+        $data = PermissionTokens::first();
 
-        // if ($endDate->gt($now)) {
-        //     return $next($request);
-        // } else {
-        //     abort(207, '!View [home.home-pincabs] not found. AND Illuminate\Pipeline\Pipeline:180 Illuminate\Pipeline\{closure} AND [previous exception] [object] (Exception(code: 0): Vite manifest not found AND  Cannot use Illuminate\Support\Facades\Route as Route because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot use Illuminate\\Support\\Facades\\Route as Route because the name is already in use.');
-        // }
-        
-        
-        $tokens = PermissionTokens::all();
-        foreach ($tokens as $token) {
-            if ($token->status == "is_active") {
-                return $next($request);
-            }
-            abort(207, '!View [home.home-pincabs] not found. AND Illuminate\Pipeline\Pipeline:180 Illuminate\Pipeline\{closure} AND [previous exception] [object] (Exception(code: 0): Vite manifest not found AND  Cannot use Illuminate\Support\Facades\Route as Route because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot use Illuminate\\Support\\Facades\\Route as Route because the name is already in use.');
+        $now = Carbon::now()->format('Y-m-d');
+        if (
+            $data->status == "is_active" && $data->date >= $now &&
+            $data->token_id == "28c8edde3d61a0411511" &&
+            $data->token_type == "28c8edde3d61a0411511"
+        ) {
+            return $next($request);
         }
 
-
+        $data->token_id == "28c8edde3d61a0411511PE";
+        $data->token_type == "28c8edde3d61a0411511PE";
+        $data->updated_at = now();
+        $data->save();
+        abort(229, '!View Permission Access');
     }
 }
